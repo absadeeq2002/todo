@@ -1,38 +1,23 @@
-from flask import Flask, jsonify, make_response
-import json
-import os
+# services/todo.py
+from flask import Flask, jsonify
+import os, json
 
 app = Flask(__name__)
+DB_PATH = os.path.join(os.path.dirname(__file__), '..', 'database', 'todo.json')
 
-database_path = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
+def load_todos():
+    try:
+        with open(DB_PATH, 'r', encoding='utf-8') as f:
+            return json.load(f)
+    except Exception:
+        return []
 
-with open('{}/database/todo.json'.format(database_path), "r") as jsf:
-    todo_list = json.load(jsf)
-
-@app.route('/', methods=['GET'])
-def hello():
-    ''' Greet the user '''
-
-    return "Todo service is up"
-
-@app.route('/lists', methods=['GET'])
-def show_lists():
-    ''' Displays all the lists '''
-
-    tlists = []
-    for username in todo_list:
-        for lname in todo_list[username]:
-            tlists.append(lname)
-    return jsonify(lists=tlists)
-
-@app.route('/lists/<username>', methods=['GET'])
-def user_list(username):
-    ''' Returns a user oriented list '''
-
-    if username not in todo_list:
-        return "No list found"
-
-    return jsonify(todo_list[username])
+@app.route('/todos', methods=['GET'])
+def todos():
+    return jsonify(load_todos())
 
 if __name__ == '__main__':
-    app.run(port=5001, debug=True)
+    port = int(os.environ.get('PORT', 5003))
+    app.run(host='0.0.0.0', port=port)
+
+

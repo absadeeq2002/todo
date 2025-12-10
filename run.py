@@ -1,36 +1,91 @@
-from configobj import ConfigObj
+
+import subprocess
+import time
+import json
 import os
-import socket
 
-SERVICE_DIR = 'services/'
+# ================================
+# CONFIGURATION
+# ================================
 
-def checkport(host,port):
-    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    return sock.connect_ex((host, port))
+CONFIG_FILE = "dependencies.ini"
 
-def launchsvc(svc,host,port):
-    #Check if the service is running or not
-    addr = "localhost:{}".format(port)
-    resp = checkport(host, int(port))
-    if resp != 0:
-        print "Service {} not running, starting service at port {} on host {}".format(svc, port, host)
-        os.system('python '+ SERVICE_DIR + svc + '.py &')
-    else:
-        print "Service {} running at port {} on host {}".format(svc, port, host)
+def load_config():
+    """
+    Load service configuration from dependencies.ini
+    """
+    if not os.path.exists(CONFIG_FILE):
+        print(f"[ERROR] Config file {CONFIG_FILE} not found.")
+        return {}
 
-def walkthrough(section,obj):
-    if 'preload' in section:
-        services = section['preload'].split(' ')
-        for service in services:
-            launchsvc(service, obj[service]['host'], obj[service]['port'])
-    launchsvc(section.name, section['host'], section['port'])
+    config = {}
+    with open(CONFIG_FILE, "r") as f:
+        for line in f.readlines():
+            if "=" in line:
+                key, value = line.strip().split("=")
+                config[key] = value
+    return config
 
-def loadDependencies():
-    #Read the dependency file
-    config = ConfigObj('dependencies.ini')
-    #config.walk(walkthrough, obj=config)
-    for section in config:
-        walkthrough(config[section], config)
 
-if __name__ == '__main__':
-    loadDependencies()
+def check_service_running(port):
+    """
+    Check if a service is running by checking the port.
+    """
+    try:
+        result = subprocess.run(
+            ["lsof", "-i", f":{port}"],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE
+        )
+        return result.returncode == 0
+    except FileNotFoundError:
+        print("[WARNING] lsof not found in container. Port scan skipped.")
+        return False
+
+
+def start_service(service_name, host, port):
+    """
+    Start a service with Python.
+    """
+    print(f"[INFO] Starting service '{service_name}' at http://{host}:{port}")
+
+    try:
+        subprocess.Popen(
+            ["python", f"services/{service_name}/app.py"],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE
+        )
+        time.sleep(2)
+    except Exception as e:
+        print(f"[ERROR] Failed to start {service_name}: {e}")
+
+
+def main():
+    config = load_config()
+
+    if not config:
+        print("[ERROR] No config loaded. Exiting...")
+        return
+
+    # Example:
+    # service_auth=localhost:5001
+    # service_todos=localhost:5002
+
+    for key, value in config.items():
+        service_name = key.replace("service_", "")
+        host, port = value.split(":")
+
+        print(f"[CHECK] Checking service '{service_name}' on port {port}...")
+
+        if check_service_running(port):
+            print(f"[OK] {service_name} is already running.")
+        else:
+            print(f"[WARN] {service_name} not running. Starting...")
+            start_service(service_name, host, port)
+
+    print("[DONE] All services checked.")
+
+
+if __name__ == "__main__":
+    print("[START] Boot manager running...")
+    main()

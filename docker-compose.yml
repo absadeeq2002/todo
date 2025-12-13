@@ -1,5 +1,3 @@
-version: '3.9'
-
 services:
 
   auth:
@@ -37,7 +35,7 @@ services:
     ports:
       - "5003:5003"
     environment:
-      - PORT=5002
+      - PORT=5003
     networks:
       - todo-net
 
@@ -47,6 +45,10 @@ services:
       dockerfile: Dockerfile
     container_name: todo-log-processor
     command: python services/log_processor.py
+    ports:
+      - "5004:5004"
+    environment:
+      - PORT=5004
     networks:
       - todo-net
 
@@ -65,11 +67,11 @@ services:
     container_name: todo_app
     command: python run.py
     environment:
-      AUTH_SERVICE: "auth:5001"
-      USERS_SERVICE: "users:5002"
-      TODOS_SERVICE: "todos:5003"
-      LOG_PROCESSOR_SERVICE: "log-processor:5004"
-      FRONTEND_SERVICE: "frontend:80"
+      AUTH: "auth:5001"
+      USERS: "users:5002"
+      TODOS: "todos:5003"
+      LOG_PROCESSOR: "log-processor:5004"
+      FRONTEND: "frontend:80"
     depends_on:
       - auth
       - users
@@ -80,6 +82,4 @@ services:
       - todo-net
 
 networks:
-  todo-net:
-
-
+  todo-net: {}

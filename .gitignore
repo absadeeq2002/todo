@@ -2,3 +2,8 @@
 venv
 #Python Cache
 *.pyc
+reports/
+__pycache__/
+*.log
+.env
+

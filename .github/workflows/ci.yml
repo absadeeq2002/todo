@@ -1,4 +1,4 @@
-name: CI Pipeline - TODO App
+name: CI Pipeline - TODO App (DevSecOps)
 
 on:
   push:
@@ -9,24 +9,42 @@ on:
       - master
 
 jobs:
-  build-and-run:
+  build-scan-run:
     runs-on: ubuntu-latest
 
     steps:
+      # 1️⃣ Checkout code
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      # 2️⃣ Set up Docker
       - name: Set up Docker
         uses: docker/setup-buildx-action@v3
 
+      # 3️⃣ Build Docker images
       - name: Build Docker images
         run: docker compose build
 
+      # 4️⃣ Install Trivy
+      - name: Install Trivy
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y wget
+          wget https://github.com/aquasecurity/trivy/releases/latest/download/trivy_0.50.1_Linux-64bit.deb
+          sudo dpkg -i trivy_0.50.1_Linux-64bit.deb
+
+      # 5️⃣ Scan Docker images
+      - name: Trivy Scan - Docker Images
+        run: |
+          trivy image --severity HIGH,CRITICAL --exit-code 1 python:3.10-slim
+
+      # 6️⃣ Start containers
       - name: Start containers
         run: docker compose up -d
 
-      - name: Verify containers
+      # 7️⃣ Verify containers
         run: docker ps
 
+      # 8️⃣ Stop containers
       - name: Stop containers
         run: docker compose down

@@ -33,10 +33,22 @@ jobs:
           wget https://github.com/aquasecurity/trivy/releases/latest/download/trivy_0.50.1_Linux-64bit.deb
           sudo dpkg -i trivy_0.50.1_Linux-64bit.deb
 
-      # 5️⃣ Scan Docker images
-      - name: Trivy Scan - Docker Images
+            # 5️⃣ Trivy Scan - All App Images
+      - name: Trivy Scan - TODO App Images
         run: |
-          trivy image --severity HIGH,CRITICAL --exit-code 1 python:3.10-slim
+          images=(
+            todo-auth
+            todo-users
+            todo-todos
+            todo-log-processor
+            todo-app
+          )
+
+          for image in "${images[@]}"; do
+            echo "🔍 Scanning image: $image"
+            trivy image --severity HIGH,CRITICAL --exit-code 1 "$image"
+          done
+
 
       # 6️⃣ Start containers
       - name: Start containers

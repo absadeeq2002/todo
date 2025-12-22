@@ -16,3 +16,60 @@ start.ps1 / start.sh	Builds and starts all services using Docker Compose
 cleanup.ps1 / cleanup.sh	Stops containers and removes unused Docker resources
 monitor.sh	Displays running containers and resource usage
 scan.sh	Performs container security scanning
+## 🚀 DevSecOps Automation Overview
+
+This project implements a complete DevSecOps automation pipeline for a Dockerized microservices-based TODO application.  
+The automation improves **maintainability**, **security**, and **deployment reliability**.
+
+---
+
+## 🛠️ Automation Components
+
+### 1️⃣ Automated Build and Startup
+- Bash (`start.sh`) and PowerShell (`start.ps1`) scripts automate:
+  - Building Docker images
+  - Starting all services using Docker Compose
+  - Optional rebuild and log streaming
+- Eliminates manual Docker commands and reduces human error.
+
+**Example commands:**
+```bash
+./scripts/start.sh --rebuild
+./scripts/start.sh --logs
+# Secure Containerized TODO Application (DevSecOps Project)
+
+## 📌 Project Overview
+This project demonstrates how to securely containerize, deploy, and automate a microservices-based TODO application using DevSecOps best practices.
+
+The application consists of multiple Python microservices and an NGINX frontend, all orchestrated using Docker Compose and secured at build-time and runtime.
+
+---
+
+## 🧱 Architecture
+**Services Included:**
+- Frontend (NGINX)
+- Auth Service
+- Users Service
+- Todos Service
+- Log Processor Service
+
+Each service runs in its own container and communicates via an isolated Docker bridge network.
+
+---
+
+## 🔐 Part 4: Secrets Management
+
+### ✔ Removed Hardcoded Secrets
+- No credentials or tokens are hardcoded in source code.
+- All sensitive values are injected at runtime.
+
+### ✔ Secure Secret Storage
+- Secrets are stored using `.env` files.
+- `.env` file is excluded from version control using `.gitignore`.
+
+### ✔ Secure Injection
+Secrets are injected using Docker Compose environment variables:
+```yaml
+env_file:
+  - .env
+

@@ -27,4 +27,28 @@ jobs:
           format: table
           exit-code: 0
           severity: CRITICAL,HIGH
+name: CI Security Scan
+
+on:
+  push:
+    branches: [ "master" ]
+  pull_request:
+
+jobs:
+  trivy-scan:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Build Docker image
+        run: docker build -t todo-app:latest .
+
+      - name: Run Trivy vulnerability scan
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: todo-app:latest
+          format: table
+          exit-code: 0
 

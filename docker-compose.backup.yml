@@ -1,0 +1,77 @@
+version: "3.9"
+
+services:
+  auth:
+    build: .
+    container_name: todo-auth
+    command: python services/auth.py
+    ports:
+      - "5001:5001"
+    environment:
+      - PORT=5001
+    networks:
+      - todo-net
+
+  users:
+    build: .
+    container_name: todo-users
+    command: python services/users.py
+    ports:
+      - "5002:5002"
+    environment:
+      - PORT=5002
+    networks:
+      - todo-net
+
+  todos:
+    build: .
+    container_name: todo-todos
+    command: python services/todo.py
+    ports:
+      - "5003:5003"
+    environment:
+      - PORT=5003
+    networks:
+      - todo-net
+
+  log-processor:
+    build: .
+    container_name: todo-log-processor
+    command: python services/log_processor.py
+    ports:
+      - "5004:5004"
+    environment:
+      - PORT=5004
+    networks:
+      - todo-net
+
+  frontend:
+    image: nginx:alpine
+    container_name: todo-frontend
+    ports:
+      - "5000:80"
+    networks:
+      - todo-net
+
+  app:
+    build: .
+    container_name: todo-app
+    command: python run.py
+    environment:
+      - AUTH_SERVICE=auth:5001
+      - USERS_SERVICE=users:5002
+      - TODOS_SERVICE=todos:5003
+      - LOG_PROCESSOR_SERVICE=log-processor:5004
+      - FRONTEND_SERVICE=frontend:80
+    depends_on:
+      - auth
+      - users
+      - todos
+      - log-processor
+      - frontend
+    networks:
+      - todo-net
+
+networks:
+  todo-net:
+    driver: bridge

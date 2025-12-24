@@ -1,15 +1,53 @@
 services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command:
+      - python
+      - run.py
+    container_name: todo-app
+    depends_on:
+      - auth
+      - users
+      - todos
+      - log-processor
+      - frontend
+    environment:
+      AUTH_SERVICE: auth:5001
+      USERS_SERVICE: users:5002
+      TODOS_SERVICE: todos:5003
+      LOG_PROCESSOR_SERVICE: log-processor:5004
+      FRONTEND_SERVICE: frontend:80
+
+    cap_drop:
+      - ALL
+    read_only: true
+    security_opt:
+      - no-new-privileges:true
+
+    networks:
+      - todo-net
 
   auth:
     build:
       context: .
       dockerfile: Dockerfile
+    command:
+      - python
+      - services/auth.py
     container_name: todo-auth
-    command: python services/auth.py
+    environment:
+      PORT: "5001"
+      AUTH_SECRET_KEY: ${AUTH_SECRET_KEY}
+    cap_drop:
+      - ALL
+    read_only: true
+    security_opt:
+      - no-new-privileges:true
+
     ports:
       - "5001:5001"
-    environment:
-      - PORT=5001
     networks:
       - todo-net
 
@@ -17,12 +55,21 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+    command:
+      - python
+      - services/users.py
     container_name: todo-users
-    command: python services/users.py
+    environment:
+      PORT: "5002"
+
+    cap_drop:
+      - ALL
+    read_only: true
+    security_opt:
+      - no-new-privileges:true
+
     ports:
       - "5002:5002"
-    environment:
-      - PORT=5002
     networks:
       - todo-net
 
@@ -30,12 +77,21 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+    command:
+      - python
+      - services/todo.py
     container_name: todo-todos
-    command: python services/todo.py
+    environment:
+      PORT: "5003"
+
+    cap_drop:
+      - ALL
+    read_only: true
+    security_opt:
+      - no-new-privileges:true
+
     ports:
       - "5003:5003"
-    environment:
-      - PORT=5003
     networks:
       - todo-net
 
@@ -43,43 +99,39 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+    command:
+      - python
+      - services/log_processor.py
     container_name: todo-log-processor
-    command: python services/log_processor.py
+    environment:
+      PORT: "5004"
+
+    cap_drop:
+      - ALL
+    read_only: true
+    security_opt:
+      - no-new-privileges:true
+
     ports:
       - "5004:5004"
-    environment:
-      - PORT=5004
     networks:
       - todo-net
 
   frontend:
     image: nginx:alpine
     container_name: todo-frontend
+
+    cap_drop:
+      - ALL
+    read_only: true
+    security_opt:
+      - no-new-privileges:true
+
     ports:
       - "5000:80"
     networks:
       - todo-net
 
-  app:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    container_name: todo_app
-    command: python run.py
-    environment:
-      AUTH: "auth:5001"
-      USERS: "users:5002"
-      TODOS: "todos:5003"
-      LOG_PROCESSOR: "log-processor:5004"
-      FRONTEND: "frontend:80"
-    depends_on:
-      - auth
-      - users
-      - todos
-      - log-processor
-      - frontend
-    networks:
-      - todo-net
-
 networks:
-  todo-net: {}
+  todo-net:
+    driver: bridge

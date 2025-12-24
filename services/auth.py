@@ -1,3 +1,10 @@
+import os
+
+SECRET_KEY = os.getenv("AUTH_SECRET_KEY")
+
+if not SECRET_KEY:
+    raise RuntimeError("AUTH_SECRET_KEY is missing")
+
 from flask import Flask, request, jsonify
 import json
 import os

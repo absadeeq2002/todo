@@ -72,4 +72,15 @@ Secrets are injected using Docker Compose environment variables:
 ```yaml
 env_file:
   - .env
+## 🔐 Secrets Management
+- Secrets are stored in a `.env` file (not committed to GitHub)
+- Injected into containers using Docker Compose environment variables
+- Secrets are inaccessible from the host or other containers
+
+## 🛡️ Container Runtime Security
+- All Linux capabilities dropped (`cap_drop: ALL`)
+- Containers run with read-only filesystems
+- Privilege escalation disabled (`no-new-privileges`)
+- Network access restricted to internal Docker network
+- Unauthorized access attempts are blocked and verified
 

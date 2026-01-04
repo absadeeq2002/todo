@@ -1,0 +1,32 @@
+
+Report Summary
+
+┌──────────────────┬──────┬─────────────────┬─────────┐
+│      Target      │ Type │ Vulnerabilities │ Secrets │
+├──────────────────┼──────┼─────────────────┼─────────┤
+│ requirements.txt │ pip  │        3        │    -    │
+└──────────────────┴──────┴─────────────────┴─────────┘
+Legend:
+- '-': Not scanned
+- '0': Clean (no security findings detected)
+
+
+requirements.txt (pip)
+======================
+Total: 3 (HIGH: 3, CRITICAL: 0)
+
+┌──────────┬────────────────┬──────────┬────────┬───────────────────┬───────────────┬─────────────────────────────────────────────────────────────┐
+│ Library  │ Vulnerability  │ Severity │ Status │ Installed Version │ Fixed Version │                            Title                            │
+├──────────┼────────────────┼──────────┼────────┼───────────────────┼───────────────┼─────────────────────────────────────────────────────────────┤
+│ Flask    │ CVE-2023-30861 │ HIGH     │ fixed  │ 2.0.3             │ 2.3.2, 2.2.5  │ flask: Possible disclosure of permanent session cookie due  │
+│          │                │          │        │                   │               │ to missing Vary: Cookie...                                  │
+│          │                │          │        │                   │               │ https://avd.aquasec.com/nvd/cve-2023-30861                  │
+├──────────┼────────────────┤          │        │                   ├───────────────┼─────────────────────────────────────────────────────────────┤
+│ Werkzeug │ CVE-2023-25577 │          │        │                   │ 2.2.3         │ python-werkzeug: high resource usage when parsing multipart │
+│          │                │          │        │                   │               │ form data with many fields...                               │
+│          │                │          │        │                   │               │ https://avd.aquasec.com/nvd/cve-2023-25577                  │
+│          ├────────────────┤          │        │                   ├───────────────┼─────────────────────────────────────────────────────────────┤
+│          │ CVE-2024-34069 │          │        │                   │ 3.0.3         │ python-werkzeug: user may execute code on a developer's     │
+│          │                │          │        │                   │               │ machine                                                     │
+│          │                │          │        │                   │               │ https://avd.aquasec.com/nvd/cve-2024-34069                  │
+└──────────┴────────────────┴──────────┴────────┴───────────────────┴───────────────┴─────────────────────────────────────────────────────────────┘
